@@ -24,7 +24,6 @@ app = FastAPI(
 app.get("/", response_model=MessageResponse)
 
 
-
 @app.get("/", response_model=MessageResponse)
 async def root():
     return {"message": "Добро пожаловать в Кулинарную книгу API!", "recipe_id": None}
