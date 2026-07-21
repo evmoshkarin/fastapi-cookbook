@@ -1,17 +1,11 @@
-from fastapi import FastAPI, Depends, HTTPException, status
-from sqlalchemy.orm import Session
 from typing import List
 
-from database import engine, get_db, Base
-from models import Recipe
-from schemas import (
-    RecipeCreate,
-    RecipeListItem,
-    RecipeDetailResponse,
-    MessageResponse
-)
+from fastapi import Depends, FastAPI, HTTPException, status
+from sqlalchemy.orm import Session
 
-Base.metadata.create_all(bind=engine)
+from database import get_db
+from models import Recipe
+from schemas import MessageResponse, RecipeCreate, RecipeDetailResponse, RecipeListItem
 
 app = FastAPI(
     title="Кулинарная книга API",
@@ -27,17 +21,18 @@ app = FastAPI(
 )
 
 
-@app.get("/", response_model=MessageResponse)
+app.get("/", response_model=MessageResponse)
+
+
 async def root():
     return {"message": "Добро пожаловать в Кулинарную книгу API!", "recipe_id": None}
 
 
 @app.get("/recipes", response_model=List[RecipeListItem])
 def get_recipes(db: Session = Depends(get_db)):
-    recipes = db.query(Recipe).order_by(
-        Recipe.views.desc(),
-        Recipe.cooking_time.asc()
-    ).all()
+    recipes = (
+        db.query(Recipe).order_by(Recipe.views.desc(), Recipe.cooking_time.asc()).all()
+    )
     return recipes
 
 
@@ -48,14 +43,14 @@ def get_recipe(recipe_id: int, db: Session = Depends(get_db)):
     if not recipe:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Рецепт с ID {recipe_id} не найден"
+            detail=f"Рецепт с ID {recipe_id} не найден",
         )
 
-    recipe.views += 1
+    recipe.views = recipe.views + 1  # type: ignore[assignment]
     db.commit()
     db.refresh(recipe)
 
-    ingredients_list = recipe.ingredients.split(',')
+    ingredients_list = recipe.ingredients.split(",")
 
     return {
         "id": recipe.id,
@@ -63,20 +58,22 @@ def get_recipe(recipe_id: int, db: Session = Depends(get_db)):
         "cooking_time": recipe.cooking_time,
         "views": recipe.views,
         "ingredients": ingredients_list,
-        "description": recipe.description
+        "description": recipe.description,
     }
 
 
-@app.post("/recipes", response_model=MessageResponse, status_code=status.HTTP_201_CREATED)
+@app.post(
+    "/recipes", response_model=MessageResponse, status_code=status.HTTP_201_CREATED
+)
 def create_recipe(recipe_data: RecipeCreate, db: Session = Depends(get_db)):
-    ingredients_str = ','.join(recipe_data.ingredients)
+    ingredients_str = ",".join(recipe_data.ingredients)
 
     new_recipe = Recipe(
         title=recipe_data.title,
         cooking_time=recipe_data.cooking_time,
         ingredients=ingredients_str,
         description=recipe_data.description,
-        views=0
+        views=0,
     )
 
     db.add(new_recipe)
@@ -85,7 +82,7 @@ def create_recipe(recipe_data: RecipeCreate, db: Session = Depends(get_db)):
 
     return MessageResponse(
         message=f"Рецепт '{recipe_data.title}' успешно создан",
-        recipe_id=new_recipe.id
+        recipe_id=int(new_recipe.id),
     )
 
 

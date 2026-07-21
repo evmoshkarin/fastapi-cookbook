@@ -1,5 +1,6 @@
-from pydantic import BaseModel, Field
 from typing import List, Optional
+
+from pydantic import BaseModel, Field
 
 
 class RecipeBase(BaseModel):
@@ -13,8 +14,14 @@ class RecipeBase(BaseModel):
             "example": {
                 "title": "Оливье",
                 "cooking_time": 60,
-                "ingredients": ["картофель", "морковь", "колбаса", "горошек", "майонез"],
-                "description": "Отварить овощи, нарезать кубиками, смешать с майонезом..."
+                "ingredients": [
+                    "картофель",
+                    "морковь",
+                    "колбаса",
+                    "горошек",
+                    "майонез",
+                ],
+                "description": "Отварить овощи, нарезать кубиками, смешать с майонезом...",
             }
         }
 
