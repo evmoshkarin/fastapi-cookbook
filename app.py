@@ -28,6 +28,11 @@ async def root():
     return {"message": "Добро пожаловать в Кулинарную книгу API!", "recipe_id": None}
 
 
+@app.get("/", response_model=MessageResponse)
+async def root():
+    return {"message": "Добро пожаловать в Кулинарную книгу API!", "recipe_id": None}
+
+
 @app.get("/recipes", response_model=List[RecipeListItem])
 def get_recipes(db: Session = Depends(get_db)):
     recipes = (
