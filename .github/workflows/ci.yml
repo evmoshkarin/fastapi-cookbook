@@ -25,14 +25,11 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run linters
-  run: |
-    flake8 app.py database.py models.py schemas.py tests/ --max-line-length=127 --count --statistics
-
-    black --check app.py database.py models.py schemas.py tests/
-
-    isort --check-only --profile black app.py database.py models.py schemas.py tests/
-
-    mypy app.py database.py models.py schemas.py tests/ --ignore-missing-imports
+        run: |
+          flake8 app.py database.py models.py schemas.py tests/ --max-line-length=127 --count --statistics
+          black --check app.py database.py models.py schemas.py tests/
+          isort --check-only --profile black app.py database.py models.py schemas.py tests/
+          mypy app.py database.py models.py schemas.py tests/ --ignore-missing-imports
 
       - name: Run tests
         run: |
